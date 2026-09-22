@@ -209,6 +209,8 @@ describe('TautulliPlugin', () => {
       expect(sessionPoint?.tags.username).toBe('user1');
       expect(sessionPoint?.tags.platform).toBe('Windows');
       expect(sessionPoint?.tags.player_state).toBe(0); // playing = 0
+      expect(sessionPoint?.tags.progress_percent).toBeUndefined(); // must be a field, not a tag
+      expect(sessionPoint?.fields.progress_percent).toBe(45);
 
       const statsPoint = points.find((p) => p.tags.type === 'current_stream_stats');
       expect(statsPoint).toBeDefined();

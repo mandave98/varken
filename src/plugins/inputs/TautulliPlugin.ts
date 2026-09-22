@@ -385,7 +385,6 @@ export class TautulliPlugin extends BaseInputPlugin<TautulliConfig> {
       audio_codec: (session.audio_codec || '').toUpperCase() || 'unknown',
       stream_audio_codec: (session.stream_audio_codec || '').toUpperCase() || 'unknown',
       quality_profile: session.quality_profile || 'unknown',
-      progress_percent: session.progress_percent || '0',
       region_code: regionCode,
       location,
       full_location: fullLocation,
@@ -404,7 +403,12 @@ export class TautulliPlugin extends BaseInputPlugin<TautulliConfig> {
       tags.longitude = longitude;
     }
 
-    return this.createDataPoint('Tautulli', tags, { hash: hashId });
+    // progress_percent is a FIELD, not a tag (matches the Plex/Emby/Jellyfin plugins). As a tag it
+    // changed every poll, so one session became up to 100 InfluxDB series and cardinality
+    // exploded (167k series for 215k points on a two-server setup). Nothing groups by it.
+    const progressPercent = parseInt(session.progress_percent || '0', 10) || 0;
+
+    return this.createDataPoint('Tautulli', tags, { hash: hashId, progress_percent: progressPercent });
   }
 
   /**
