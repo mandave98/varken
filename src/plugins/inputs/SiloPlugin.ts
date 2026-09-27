@@ -213,9 +213,9 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
       friendly_name: session.profile_name || session.username || 'unknown',
       username: session.username || 'unknown',
       title: fullTitle,
-      product: session.client_name || 'unknown',
+      product: this.product(session),
       platform: session.client_channel || session.client_label || 'unknown',
-      product_version: session.client_version || 'unknown',
+      product_version: session.client_version || session.client_build || 'unknown',
       quality,
       video_decision: this.titleCase(videoDecision),
       transcode_decision: this.titleCase(transcodeDecision),
@@ -224,7 +224,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
       media_type: this.titleCase(session.media_type || '') || 'unknown',
       audio_codec: (session.source_audio_codec || '').toUpperCase() || 'unknown',
       stream_audio_codec: (session.target_audio_codec || session.source_audio_codec || '').toUpperCase() || 'unknown',
-      quality_profile: session.target_resolution || 'Original',
+      quality_profile: this.qualityProfile(session, quality),
       region_code: regionCode,
       location,
       full_location: fullLocation,
@@ -375,6 +375,30 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
     return session.media_title || 'unknown';
   }
 
+  /** Silo's web player carries no client_name; fall back to the channel so `product` groups sensibly. */
+  private product(session: SiloSession): string {
+    if (session.client_name) {
+      return session.client_name;
+    }
+    const channel = (session.client_channel || '').toLowerCase();
+    if (channel === 'web') {
+      return 'Silo Web';
+    }
+    if (session.is_jellyfin_client) {
+      return 'Jellyfin client';
+    }
+    return channel ? `Silo ${channel}` : 'Silo';
+  }
+
+  /** Tautulli style: "8.0 Mbps 1080p" when a target bitrate is known, else the resolution. */
+  private qualityProfile(session: SiloSession, quality: string): string {
+    const kbps = session.target_bitrate_kbps ?? 0;
+    if (kbps > 0) {
+      return `${(kbps / 1000).toFixed(1)} Mbps ${quality}`;
+    }
+    return quality === 'unknown' ? 'Original' : quality;
+  }
+
   /** `1080p` style, from the delivered resolution when transcoding, else the source. */
   private quality(session: SiloSession): string {
     const raw = (session.target_resolution || session.source_video_resolution || '').trim();
@@ -430,7 +454,8 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
         });
         const data = response.data?.response?.data;
         if (!data || response.data?.response?.result !== 'success') {
-          return null;
+          this.logger.warn(`GeoIP lookup for ${this.maskIp(ip)} returned ${response.data?.response?.result ?? 'no result'}`);
+          throw new Error('lookup unsuccessful');
         }
         return {
           city: data.city || '',
@@ -441,10 +466,12 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
-        this.logger.debug(`GeoIP lookup failed for ${this.maskIp(ip)}: ${message}`);
-        return null;
+        this.logger.warn(`GeoIP lookup failed for ${this.maskIp(ip)}: ${message}`);
+        // Throwing keeps the miss out of the cache, so the next poll retries instead of
+        // pinning "unknown" on this address for a day.
+        throw error;
       }
-    });
+    }).catch(() => null);
   }
 
   private maskIp(ip: string): string {

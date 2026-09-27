@@ -33,12 +33,13 @@ const baseSession: SiloSession = {
   is_paused: false,
   client_ip: '203.0.113.9',
   stream_location: 'remote',
-  client_name: 'Silo Web',
+  client_name: undefined,
   client_version: '0.0.1',
   client_channel: 'web',
   client_label: 'Silo Web on Chrome',
   transcode_audio: false,
   stream_bitrate_kbps: 8000,
+  target_bitrate_kbps: 8000,
   target_resolution: '1080',
   target_video_codec: 'h264',
   target_audio_codec: 'aac',
@@ -114,6 +115,8 @@ describe('SiloPlugin', () => {
       expect(session?.tags.audio_codec).toBe('TRUEHD');
       expect(session?.tags.stream_audio_codec).toBe('AAC');
       expect(session?.tags.media_type).toBe('Episode');
+      expect(session?.tags.product).toBe('Silo Web');
+      expect(session?.tags.quality_profile).toBe('8.0 Mbps 1080p');
       expect(session?.tags.player_state).toBe(0);
       expect(session?.tags.relay).toBe(1);
       expect(session?.tags.server).toBe(1);
@@ -250,6 +253,29 @@ describe('SiloPlugin', () => {
         '/api/v2',
         expect.objectContaining({ params: expect.objectContaining({ cmd: 'get_geoip_lookup', ip_address: '203.0.113.9' }) })
       );
+    });
+  });
+
+  describe('geoip failures', () => {
+    it('does not cache a failed lookup, so the next poll retries', async () => {
+      const geoClient = createMockHttpClient();
+      (axios.create as Mock).mockReturnValueOnce(http).mockReturnValueOnce(geoClient);
+      await plugin.initialize({
+        ...config,
+        stats: { enabled: false, intervalSeconds: 300 },
+        geoip: { enabled: true, tautulli: { url: 'http://tautulli.local:8181', apiKey: 'tk' } },
+      });
+      geoClient.get
+        .mockRejectedValueOnce(new Error('timeout'))
+        .mockResolvedValueOnce({ data: { response: { result: 'success', data: { city: 'Seattle', region: 'Washington', country: 'US', latitude: 47.6, longitude: -122.3 } } } });
+      http.get.mockResolvedValue({ data: { items: [baseSession] } });
+
+      const first = (await plugin.collect()).find((p) => p.tags.type === 'Session');
+      const second = (await plugin.collect()).find((p) => p.tags.type === 'Session');
+
+      expect(first?.tags.location).toBe('unknown');
+      expect(second?.tags.location).toBe('Seattle');
+      expect(geoClient.get).toHaveBeenCalledTimes(2);
     });
   });
 
