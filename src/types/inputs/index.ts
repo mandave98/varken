@@ -7,6 +7,7 @@ export * from './bazarr.types';
 export * from './tautulli.types';
 export * from './plex.types';
 export * from './jellyfin.types';
+export * from './silo.types';
 export * from './emby.types';
 export * from './ombi.types';
 export * from './overseerr.types';

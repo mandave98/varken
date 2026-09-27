@@ -170,6 +170,28 @@ export const JellyfinConfigSchema = z.object({
   libraries: ScheduleConfigSchema.default(scheduleDefault),
 });
 
+export const SiloConfigSchema = z.object({
+  id: z.number(),
+  url: z.url(),
+  /** A Silo admin API key (`sa_...`); the admin sessions and stats endpoints are admin-only. */
+  apiKey: z.string(),
+  verifySsl: z.boolean().default(false),
+  sessions: ScheduleConfigSchema.default(scheduleDefault),
+  stats: ScheduleConfigSchema.default({ enabled: false, intervalSeconds: 300 }),
+  geoip: z.object({
+    enabled: z.boolean().default(false),
+    /** Silo has no GeoIP; when set, remote client IPs are resolved through this Tautulli instance. */
+    tautulli: z.object({
+      url: z.url(),
+      apiKey: z.string(),
+    }).optional(),
+    localCoordinates: z.object({
+      latitude: z.number(),
+      longitude: z.number(),
+    }).optional(),
+  }).default({ enabled: false }),
+});
+
 export const EmbyConfigSchema = z.object({
   id: z.number(),
   url: z.url(),
@@ -270,6 +292,7 @@ export const InputsConfigSchema = z.object({
   plex: z.array(PlexConfigSchema).optional(),
   jellyfin: z.array(JellyfinConfigSchema).optional(),
   emby: z.array(EmbyConfigSchema).optional(),
+  silo: z.array(SiloConfigSchema).optional(),
   ombi: z.array(OmbiConfigSchema).optional(),
   overseerr: z.array(OverseerrConfigSchema).optional(),
 }).refine(

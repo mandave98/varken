@@ -208,6 +208,28 @@ inputs:
   #       enabled: true
   #       intervalSeconds: 3600
 
+  # Silo - native admin API (sessions, dashboard stats). Needs an admin API key.
+  # silo:
+  #   - id: 1
+  #     url: "http://localhost:8090"
+  #     apiKey: "sa_your-admin-api-key"
+  #     verifySsl: false
+  #     sessions:
+  #       enabled: true
+  #       intervalSeconds: 30
+  #     stats:
+  #       enabled: true
+  #       intervalSeconds: 300
+  #     geoip:
+  #       enabled: false
+  #       # Silo has no GeoIP of its own; point at a Tautulli for remote IP lookups
+  #       # tautulli:
+  #       #   url: "http://localhost:8181"
+  #       #   apiKey: "tautulli-api-key"
+  #       localCoordinates:
+  #         latitude: 48.8566
+  #         longitude: 2.3522
+
   # Emby
   # emby:
   #   - id: 1

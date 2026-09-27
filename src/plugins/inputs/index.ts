@@ -11,6 +11,7 @@ import { TautulliPlugin } from './TautulliPlugin';
 import { PlexPlugin } from './PlexPlugin';
 import { JellyfinPlugin } from './JellyfinPlugin';
 import { EmbyPlugin } from './EmbyPlugin';
+import { SiloPlugin } from './SiloPlugin';
 import { OverseerrPlugin } from './OverseerrPlugin';
 import { OmbiPlugin } from './OmbiPlugin';
 
@@ -26,6 +27,7 @@ export { TautulliPlugin } from './TautulliPlugin';
 export { PlexPlugin } from './PlexPlugin';
 export { JellyfinPlugin } from './JellyfinPlugin';
 export { EmbyPlugin } from './EmbyPlugin';
+export { SiloPlugin } from './SiloPlugin';
 export { OverseerrPlugin } from './OverseerrPlugin';
 export { OmbiPlugin } from './OmbiPlugin';
 
@@ -44,6 +46,7 @@ const inputPluginClasses: InputPluginFactory[] = [
   PlexPlugin,
   JellyfinPlugin,
   EmbyPlugin,
+  SiloPlugin,
   OverseerrPlugin,
   OmbiPlugin,
 ];
