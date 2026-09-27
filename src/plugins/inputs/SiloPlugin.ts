@@ -449,10 +449,11 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
     return parts.length === 4 ? `${parts[0]}.${parts[1]}.x.x` : 'x:x:x';
   }
 
+  /** First letter only, exactly like the Tautulli plugin, so "Direct play" matches existing panel filters. */
   private titleCase(str: string): string {
-    return str
-      .split(' ')
-      .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w))
-      .join(' ');
+    if (!str) {
+      return '';
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 }

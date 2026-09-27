@@ -161,13 +161,13 @@ describe('SiloPlugin', () => {
       const d = points.find((p) => p.tags.session_id === 'd');
       const r = points.find((p) => p.tags.session_id === 'r');
 
-      expect(d?.tags.transcode_decision).toBe('Direct Play');
-      expect(d?.tags.video_decision).toBe('Direct Play');
+      expect(d?.tags.transcode_decision).toBe('Direct play');
+      expect(d?.tags.video_decision).toBe('Direct play');
       expect(d?.tags.transcode_hw_encoding).toBe(0);
       expect(d?.tags.quality).toBe('2160p');
       expect(d?.tags.player_state).toBe(1);
-      expect(r?.tags.transcode_decision).toBe('Direct Stream');
-      expect(r?.tags.video_decision).toBe('Direct Stream');
+      expect(r?.tags.transcode_decision).toBe('Direct stream');
+      expect(r?.tags.video_decision).toBe('Direct stream');
     });
 
     it('writes a current_stream_stats summary with bandwidth split by location', async () => {
