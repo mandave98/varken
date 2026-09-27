@@ -35,13 +35,14 @@ describe('Input Plugins Index', () => {
       expect(registry.has('plex')).toBe(true);
       expect(registry.has('jellyfin')).toBe(true);
       expect(registry.has('emby')).toBe(true);
+      expect(registry.has('silo')).toBe(true);
       expect(registry.has('overseerr')).toBe(true);
       expect(registry.has('ombi')).toBe(true);
     });
 
     it('should have correct number of plugins', () => {
       const registry = getInputPluginRegistry();
-      expect(registry.size).toBe(12);
+      expect(registry.size).toBe(13);
     });
 
     it('should return plugin classes that can be instantiated', () => {

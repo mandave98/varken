@@ -78,6 +78,7 @@ Built with TypeScript, Node.js, and a plugin-based architecture with scheduled d
 | **Plex**      | Sessions, libraries (direct API)          | ✅          |
 | **Jellyfin**  | Sessions, libraries, item counts          | ✅          |
 | **Emby**      | Sessions, libraries, item counts          | ✅          |
+| **Silo**      | Sessions (Tautulli-shaped), server stats, stream timeseries | ✅ (fork) |
 
 ### Output Plugins
 
