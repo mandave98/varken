@@ -62,6 +62,7 @@ export interface SiloSession {
   stream_location?: string;
   client_name?: string;
   client_version?: string;
+  client_build?: string;
   client_channel?: string;
   client_label?: string;
   client_label_full?: string;
