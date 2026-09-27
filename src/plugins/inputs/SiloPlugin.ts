@@ -23,9 +23,10 @@ const GEOIP_CACHE_MAX = 1000;
  *   - `GET /api/v2/admin/stats` — catalog / user / active-stream totals
  *   - `GET /api/v2/admin/stats/timeseries` — sampled concurrent streams and egress
  *
- * Session points are written to the `Silo` measurement with the same tag and
- * field names the Tautulli plugin uses, so existing "now playing" panels work
- * with the measurement swapped (or a union of both).
+ * Session points use the same tag and field names as the Tautulli plugin. The
+ * measurement defaults to `Silo`; set `measurement: Tautulli` (with an `id` no
+ * Tautulli instance uses) to feed existing Tautulli dashboards directly, since
+ * InfluxQL cannot merge two measurements into one series.
  *
  * Silo's Jellyfin-compatible `/Sessions` route is deliberately not used: it only
  * returns the calling token's own sessions.
@@ -37,6 +38,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
     description: 'Collects live sessions and dashboard stats from Silo',
   };
 
+  private measurement = 'Silo';
   private geoipClient: AxiosInstance | null = null;
   private geoipCache = new RequestCache<GeoIPInfo | null>({
     ttlMs: GEOIP_CACHE_TTL_MS,
@@ -45,6 +47,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
 
   async initialize(...args: Parameters<BaseInputPlugin<SiloConfig>['initialize']>): Promise<void> {
     await super.initialize(...args);
+    this.measurement = (this.config.measurement || 'Silo').trim() || 'Silo';
     this.httpClient.defaults.headers.common['Authorization'] = `Bearer ${this.config.apiKey}`;
 
     if (this.config.geoip?.enabled && this.config.geoip.tautulli) {
@@ -134,7 +137,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
 
       points.push(
         this.createDataPoint(
-          'Silo',
+          this.measurement,
           {
             type: 'current_stream_stats',
             server: this.config.id,
@@ -240,7 +243,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
       tags.longitude = longitude;
     }
 
-    return this.createDataPoint('Silo', tags, {
+    return this.createDataPoint(this.measurement, tags, {
       hash: hashId,
       progress_percent: progressPercent,
       position_seconds: Math.round(session.position_seconds || 0),
@@ -265,7 +268,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
       if (stats) {
         points.push(
           this.createDataPoint(
-            'Silo',
+            this.measurement,
             {
               type: 'server_stats',
               server: this.config.id,
@@ -292,7 +295,7 @@ export class SiloPlugin extends BaseInputPlugin<SiloConfig> {
         }
         points.push(
           this.createDataPoint(
-            'Silo',
+            this.measurement,
             {
               type: 'stream_timeseries',
               server: this.config.id,

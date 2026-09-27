@@ -8,6 +8,8 @@ import type { BaseInputConfig } from '../../plugins/inputs/BaseInputPlugin';
  */
 export interface SiloConfig extends BaseInputConfig {
   apiKey: string;
+  /** Measurement name; `Tautulli` to share existing dashboards, default `Silo`. */
+  measurement?: string;
   sessions: {
     enabled: boolean;
     intervalSeconds: number;

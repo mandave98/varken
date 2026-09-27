@@ -214,6 +214,8 @@ inputs:
   #     url: "http://localhost:8090"
   #     apiKey: "sa_your-admin-api-key"
   #     verifySsl: false
+  #     # "Tautulli" (with an id no Tautulli instance uses) feeds existing Tautulli dashboards directly
+  #     measurement: "Silo"
   #     sessions:
   #       enabled: true
   #       intervalSeconds: 30

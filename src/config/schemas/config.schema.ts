@@ -176,6 +176,11 @@ export const SiloConfigSchema = z.object({
   /** A Silo admin API key (`sa_...`); the admin sessions and stats endpoints are admin-only. */
   apiKey: z.string(),
   verifySsl: z.boolean().default(false),
+  /**
+   * InfluxDB measurement to write into. Points are Tautulli-shaped, so `Tautulli` (with a distinct
+   * `id`) drops Silo straight into existing Tautulli dashboards; the default keeps it separate.
+   */
+  measurement: z.string().min(1).default('Silo'),
   sessions: ScheduleConfigSchema.default(scheduleDefault),
   stats: ScheduleConfigSchema.default({ enabled: false, intervalSeconds: 300 }),
   geoip: z.object({

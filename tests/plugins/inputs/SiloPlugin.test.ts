@@ -206,6 +206,20 @@ describe('SiloPlugin', () => {
     });
   });
 
+  describe('measurement override', () => {
+    it('writes every point into the configured measurement', async () => {
+      await plugin.initialize({ ...config, measurement: 'Tautulli' });
+      http.get
+        .mockResolvedValueOnce({ data: { items: [baseSession] } })
+        .mockResolvedValueOnce({ data: { total_items: 1, total_files: 1, total_users: 1, active_streams: 1, total_storage_bytes: 1 } })
+        .mockResolvedValueOnce({ data: { resolution_seconds: 60, from: '', to: '', points: [{ t: '2026-09-27T00:59:00Z', streams: 1, egress_kbps: 1 }] } });
+
+      const points = await plugin.collect();
+      expect(points.length).toBeGreaterThanOrEqual(4);
+      expect(new Set(points.map((p) => p.measurement))).toEqual(new Set(['Tautulli']));
+    });
+  });
+
   describe('geoip', () => {
     it('resolves remote IPs through the configured Tautulli and caches the answer', async () => {
       const geoClient = createMockHttpClient();
