@@ -265,6 +265,7 @@ describe('OverseerrPlugin', () => {
       expect(requestPoint?.tags.title).toBe('Inception');
       expect(requestPoint?.tags.request_type).toBe(1); // Movie = 1
       expect(requestPoint?.tags.requested_user).toBe('John Doe');
+      expect(requestPoint?.fields.status_code).toBe(requestPoint?.tags.status);
       expect(requestPoint?.tags.status).toBe(5);
     });
 

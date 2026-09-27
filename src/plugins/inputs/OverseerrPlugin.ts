@@ -219,6 +219,10 @@ export class OverseerrPlugin extends BaseInputPlugin<OverseerrConfig> {
               },
               {
                 hash: hashId,
+                // Status also as a field: the tag gives each status its own series, so a
+                // dashboard cannot ask for a request's latest status; last("status_code")
+                // grouped without the status tag can.
+                status_code: mediaInfo.mediaInfo?.status || 0,
               }
             );
           } catch (error) {
